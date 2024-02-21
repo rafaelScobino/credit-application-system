@@ -1,8 +1,9 @@
 package me.dio.credit.application.system.controller
 
+import jakarta.validation.Valid
 import me.dio.credit.application.system.dto.CreditView
 import me.dio.credit.application.system.dto.CreditViewList
-import me.dio.credit.application.system.dto.creditDto
+import me.dio.credit.application.system.dto.request.creditDto
 import me.dio.credit.application.system.entity.Credit
 import me.dio.credit.application.system.service.impl.CreditService
 import org.springframework.http.HttpStatus
@@ -14,18 +15,18 @@ import java.util.stream.Collectors
 @RestController
 @RequestMapping("/api/credits")
 class CreditResource(
-    private val crediService: CreditService
+    private val creditService: CreditService
 ) {
     @PostMapping
-    fun saveCredit(@RequestBody creditDto: creditDto): ResponseEntity<String> {
-        val credit: Credit = this.crediService.save(creditDto.toEntity())
+    fun saveCredit(@RequestBody @Valid creditDto: creditDto): ResponseEntity<String> {
+        val credit: Credit = this.creditService.save(creditDto.toEntity())
         return ResponseEntity.status(HttpStatus.CREATED)
             .body("Credit ${credit.creditCode} - Customer ${credit.customer?.firstName} saved!")
     }
 
     @GetMapping
     fun findAllByCustomerId(@RequestParam(value = "customerId") customerId: Long): ResponseEntity<List<CreditViewList>> {
-        val creditViewList: List<CreditViewList> = this.crediService.findAllByCustomer(customerId).stream()
+        val creditViewList: List<CreditViewList> = this.creditService.findAllByCustomer(customerId).stream()
             .map { credit: Credit -> CreditViewList(credit) }
             .collect(Collectors.toList())
 
@@ -37,7 +38,7 @@ class CreditResource(
         @RequestParam(value = "customerId") customerId: Long,
         @PathVariable creditCode: UUID
     ): ResponseEntity<CreditView> {
-        val credit: Credit = this.crediService.findByCreditCode(customerId, creditCode)
+        val credit: Credit = this.creditService.findByCreditCode(customerId, creditCode)
         return ResponseEntity.status(HttpStatus.OK).body(CreditView(credit))
     }
 }

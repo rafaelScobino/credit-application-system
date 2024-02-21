@@ -2,10 +2,11 @@ package me.dio.credit.application.system.service.impl
 
 
 import me.dio.credit.application.system.entity.Credit
+import me.dio.credit.application.system.exception.BusinessException
 import me.dio.credit.application.system.repository.CreditRepository
 import me.dio.credit.application.system.service.ICreditService
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class CreditService(private val creditRepository: CreditRepository, private val customerService: CustomerService) :
@@ -18,7 +19,7 @@ class CreditService(private val creditRepository: CreditRepository, private val 
     override fun findAllByCustomer(customerId: Long): List<Credit> = this.creditRepository.findAllByCustomerId(customerId)
     override fun findByCreditCode(customerId: Long, creditCode: UUID): Credit {
         val credit: Credit = (this.creditRepository.findByCreditCode(creditCode)
-            ?: throw RuntimeException("Credit $creditCode Not Found"))
-        return if (credit.customer?.id == customerId) credit else throw RuntimeException("Contact ADMIN")
+            ?: throw BusinessException("Credit $creditCode Not Found"))
+        return if (credit.customer?.id == customerId) credit else throw BusinessException("Contact ADMIN")
     }
 }
